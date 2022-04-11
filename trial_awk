@@ -1,0 +1,5 @@
+#!/bin/bash
+
+first_barrier="provetta"
+
+awk -v n=2 -v barrier_1="$first_barrier" '/cosa da cambiare =/ { if (++count == n) sub(/cosa da cambiare =.*/, barrier_1); } 1' trial_text_file.txt

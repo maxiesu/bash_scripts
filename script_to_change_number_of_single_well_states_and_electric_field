@@ -1,14 +1,14 @@
 #!/bin/bash
 
 
-#### LIST OF PARAMETERS TO SET if you want to not iterate over all cases #### 
+#### LIST OF PARAMETERS TO SET if you want to not iterate over all cases ####
 iterate_over_all="false"
 electric_field="true"
 method="EFA" # the other is EFA
 overlap="false"
 well_cases=("5" "10" "20" "50")  #in the case of the no iterations, the only case is the first element of this array
 num_electron_states="6000"
-#### 
+####
 
 first_barrier="barrier_height = 1.8"
 second_barrier="barrier_height = 0.0"
@@ -18,16 +18,16 @@ cd $test_dir
 
 #we set this here for the case without iterations
 current_case=${well_cases[0]}
-if [[ "$overlap" == "true" ]]; then 
+if [[ "$overlap" == "true" ]]; then
   key_ov="with"
 else
   key_ov="no"
 fi
 
-if [[ "$electric_field" == "true" ]]; then 
+if [[ "$electric_field" == "true" ]]; then
   if [[ "$method" == "EFA" ]]; then
     path_electric_field_EFA="/${current_case}_wells_${key_ov}_overlap_EFA_with_field"
-  else 
+  else
     path_electric_field="/${current_case}_wells_${key_ov}_overlap_with_field"
   fi
 else
@@ -49,7 +49,7 @@ fi
 
 
 #set initial conditions if you want to iterate, this is must be done to have a correct logic of iteration
-if [[ "$iterate_over_all" == true ]]; then 
+if [[ "$iterate_over_all" == true ]]; then
   overlap="false"
   method="lcqo"
   electric_field="false"
@@ -65,29 +65,29 @@ ctr=0
 if [[ "$iterate_over_all" == "true" ]]; then
   for ((j=0; j<8; ++j)) do #all the combination of electric_field, method and overlap
     for ((i=0; i<${#well_cases[@]}; ++i)) do  #all the stacks of wells
-    
+
       current_case=${well_cases[i]} #set the parameters utilized to set the directory
       echo $current_case
-      if [[ "$overlap" == "true" ]]; then 
+      if [[ "$overlap" == "true" ]]; then
         key_ov="with"
       else
         key_ov="no"
       fi
 
-      if [[ "$electric_field" == "true" ]]; then 
+      if [[ "$electric_field" == "true" ]]; then
         if [[ "$method" == "EFA" ]]; then
           path_electric_field_EFA="/${current_case}_wells_${key_ov}_overlap_EFA_with_field"
-        else 
+        else
           path_electric_field="/${current_case}_wells_${key_ov}_overlap_with_field"
         fi
       else
         path_electric_field=""
         path_electric_field_EFA=""
       fi
-      
+
       absolute_path="${test_dir}/${current_case}_wells/${current_case}_wells_${key_ov}_overlap${path_electric_field}"
       absolute_path_EFA="${test_dir}/${current_case}_wells/${current_case}_wells_${key_ov}_overlap/${current_case}_wells_${key_ov}_overlap_EFA${path_electric_field_EFA}"
-      
+
       tib_name_efa="${current_case}_wells_${key_ov}_overlap_EFA${path_electric_field_EFA}"
       tib_name_lcqo="${current_case}_wells_${key_ov}_overlap${path_electric_field}"
       if [[ "electric_field" == true ]]; then
@@ -95,38 +95,38 @@ if [[ "$iterate_over_all" == "true" ]]; then
         tib_name_lcqo="${path_electric_field:1}"
       fi
 
-      
-      if [[ "$overlap" == "true" ]]; then 
-        cd "$absolute_path" 
+
+      if [[ "$overlap" == "true" ]]; then
+        cd "$absolute_path"
         echo "$absolute_path"
-        if [[ "$electric_field" == "true" ]]; then 
-          cd "$absolute_path" 
+        if [[ "$electric_field" == "true" ]]; then
+          cd "$absolute_path"
           echo "$absolute_path"
         fi
-        if [[ "$method" == "EFA" ]]; then 
-          cd "$absolute_path_EFA" 
+        if [[ "$method" == "EFA" ]]; then
+          cd "$absolute_path_EFA"
           echo "$absolute_path_EFA"
-          if [[ "$electric_field" == "true" ]]; then 
-            cd "$absolute_path_EFA" 
+          if [[ "$electric_field" == "true" ]]; then
+            cd "$absolute_path_EFA"
             echo "$absolute_path_EFA"
           fi
-        fi  
-      else 
-        cd "$absolute_path" 
+        fi
+      else
+        cd "$absolute_path"
         echo "$absolute_path"
-        if [[ "$electric_field" == "true" ]]; then 
-          cd "$absolute_path" 
+        if [[ "$electric_field" == "true" ]]; then
+          cd "$absolute_path"
           echo "$absolute_path"
         fi
-        if [[ "$method" == "EFA" ]]; then 
-          cd "$absolute_path_EFA" 
+        if [[ "$method" == "EFA" ]]; then
+          cd "$absolute_path_EFA"
           echo "$absolute_path_EFA"
-          if [[ "$electric_field" == "true" ]]; then 
-            cd "$absolute_path_EFA" 
+          if [[ "$electric_field" == "true" ]]; then
+            cd "$absolute_path_EFA"
             echo "$absolute_path_EFA"
           fi
-        fi 
-        
+        fi
+
         #here we are in the right directory and we change the tib files
         sed "0,/num_electron_states =/{s/num_electron_states =/num_electron_states = ${num_electron_states}/}" $tib_name_efa.tib
         sed "0,/num_electron_states =/{s/num_electron_states =/num_electron_states = ${num_electron_states}/}" $tib_name_lcqo.tib
@@ -135,14 +135,14 @@ if [[ "$iterate_over_all" == "true" ]]; then
         awk -v myvar='first_barrier' '/#barrier_height =/{if(++c==1)sub("#barrier_height =", "barrier_height = first_barrier");c}1' $tib_name_efa.tib
         awk -v myvar='second_barrier' '/#barrier_height =/{if(++c==1)sub("#barrier_height =", "barrier_height = second_barrier");c}1' $tib_name_efa.tib
         awk -v myvar='third_barrier' '/#barrier_height =/{if(++c==1)sub("#barrier_height =", "barrier_height = third_barrier");c}1' $tib_name_efa.tib
-              
+
         awk -v myvar='first_barrier' '/#barrier_height =/{if(++c==1)sub("#barrier_height =", "barrier_height = first_barrier");c}1' $tib_name_lcqo.tib
         awk -v myvar='second_barrier' '/#barrier_height =/{if(++c==1)sub("#barrier_height =", "barrier_height = second_barrier");c}1' $tib_name_lcqo.tib
         awk -v myvar='third_barrier' '/#barrier_height =/{if(++c==1)sub("#barrier_height =", "barrier_height = third_barrier");c}1' $tib_name_lcqo.tib
       fi
     done
-  
-  #this is the logic of iteration to consider all the different cases 
+
+  #this is the logic of iteration to consider all the different cases
   if [ "$overlap" == "false" ]; then
     overlap="true"
     echo printa qualcosa
@@ -160,62 +160,62 @@ if [[ "$iterate_over_all" == "true" ]]; then
   ctr="0"
   echo $ctr
   fi
-  if [[ $j>3 ]]; then 
+  if [[ $j>3 ]]; then
     method="EFA"
     echo "j>3"
   fi
-  
+
   echo "overlap $overlap"
   echo "electric_field $electric_field"
   echo "method $method"
 done
-  
+
 else
-  if [[ "$overlap" == "true" ]]; then 
-    cd "$absolute_path" 
+  if [[ "$overlap" == "true" ]]; then
+    cd "$absolute_path"
     echo "$absolute_path"
-    if [[ "$electric_field" == "true" ]]; then 
-      cd "$absolute_path" 
+    if [[ "$electric_field" == "true" ]]; then
+      cd "$absolute_path"
       echo "$absolute_path"
     fi
-    if [[ "$method" == "EFA" ]]; then 
-      cd "$absolute_path_EFA" 
+    if [[ "$method" == "EFA" ]]; then
+      cd "$absolute_path_EFA"
       echo "$absolute_path_EFA"
-      if [[ "$electric_field" == "true" ]]; then 
-        cd "$absolute_path_EFA" 
+      if [[ "$electric_field" == "true" ]]; then
+        cd "$absolute_path_EFA"
         echo "$absolute_path_EFA"
       fi
-    fi  
-  else 
-    cd "$absolute_path" 
+    fi
+  else
+    cd "$absolute_path"
     echo "$absolute_path"
-    if [[ "$electric_field" == "true" ]]; then 
-      cd "$absolute_path" 
+    if [[ "$electric_field" == "true" ]]; then
+      cd "$absolute_path"
       echo "$absolute_path"
     fi
-    if [[ "$method" == "EFA" ]]; then 
-      cd "$absolute_path_EFA" 
+    if [[ "$method" == "EFA" ]]; then
+      cd "$absolute_path_EFA"
       echo "$absolute_path_EFA"
-      if [[ "$electric_field" == "true" ]]; then 
-        cd "$absolute_path_EFA" 
+      if [[ "$electric_field" == "true" ]]; then
+        cd "$absolute_path_EFA"
         echo "$absolute_path_EFA"
       fi
-    fi 
+    fi
   fi
-       
-    sed -i "0,/num_electron_states =/{s/num_electron_states =.*/num_electron_states = ${num_electron_states}/}" $tib_name_efa.tib
+
+    sed -i "0,/num_electron_states =/{s/num_electron_states =.*/num_electron_states = ${num_electron_states}/}" $tib_name_efa.tib #.* cancel till the end of the line
 #     sed -i "0,/num_electron_states =/c num_electron_states = ${num_electron_states}" $tib_name_efa.tib
 #   sed -i "0,/.*num_electron_states =.*/  num_electron_states = ${num_electron_states}/" $tib_name_efa.tib
- 
+
 #   sed -i "0,/num_electron_states =/{s/num_electron_states =/num_electron_states = ${num_electron_states}/}" $tib_name_efa.tib
 #   sed -i "0,/num_electron_states =/{s/num_electron_states =/num_electron_states = ${num_electron_states}/}" $tib_name_lcqo.tib
 
  awk -v n=1 -v barrier_1="$first_barrier" '/barrier_height =/ { if (++count == n) sub(/barrier_height =/, barrier_1); } 1' $tib_name_efa.tib
-#   
+#
 #   awk -v barrier_1="$first_barrier" '/#barrier_height =/{if(++c==1)sub("#barrier_height =", barrier_1);c}1' $tib_name_efa.tib
 #   awk -v barrier_2="$second_barrier" '/#barrier_height =/{if(++c==2)sub("#barrier_height =", "barrier_height = second_barrier");c}1' $tib_name_efa.tib
 #   awk -v barrier_3="$first_barrier" '/#barrier_height =/{if(++c==3)sub("#barrier_height =", "barrier_height = third_barrier");c}1' $tib_name_efa.tib
-#         
+#
 #   awk -v myvar='first_barrier' '/#barrier_height =/{if(++c==1)sub("#barrier_height =", "barrier_height = first_barrier");c}1' $tib_name_lcqo.tib
 #   awk -v myvar='second_barrier' '/#barrier_height =/{if(++c==1)sub("#barrier_height =", "barrier_height = second_barrier");c}1' $tib_name_lcqo.tib
 #   awk -v myvar='third_barrier' '/#barrier_height =/{if(++c==1)sub("#barrier_height =", "barrier_height = third_barrier");c}1' $tib_name_lcqo.tib

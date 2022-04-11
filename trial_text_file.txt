@@ -1,0 +1,7 @@
+ cosa da cambiare = 0.2
+ 
+ cosa da cambiare = 0.2
+
+ cosa da cambiare = 0.3
+
+ cosa da cambiare = 1.2
