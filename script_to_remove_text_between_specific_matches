@@ -1,0 +1,15 @@
+#!/bin/bash
+
+#Remove all the text between test number and Solve time
+sed -e '/^test number/,/^Solve time/{/^test number/!{/^Solve time/!d}}'                     \
+    -e '/^Total solve/,/^Log/{/^Total solve/!{/^Log/!d}}'                                  \
+    -e '/^Solve time: 0h 0m 0./,/^Solve time/{/^Solve time: 0h 0m 0./!{/^Solve time/!d}}' \
+    execution_times_for_3_5_10_20_30_50_wells_with_spaces.txt > execution_times_for_3_5_10_20_30_50_wells_definitive.txt
+
+sed -i '/Solve time: 0h 0m 0./d' execution_times_for_3_5_10_20_30_50_wells_definitive.txt
+sed -i '/^<<</,/^test number/{/^<<</!{/^test number/!d}}'  execution_times_for_3_5_10_20_30_50_wells_definitive.txt
+
+sed -i '/^test number 1 of.*/i \\n\n\n\n\n\n\n\n\n\n\n\n\n\n' execution_times_for_3_5_10_20_30_50_wells_definitive.txt
+sed '/3_wells/d' execution_times_for_3_5_10_20_30_50_wells_definitive.txt > execution_times_for_5_10_20_30_50_wells_definitive.txt
+
+

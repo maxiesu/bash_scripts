@@ -1,0 +1,9 @@
+#!/bin/bash
+
+[ ! -d "/home/miesu/Documents/Test_results/TESTS PERFORMED/scripts/kappa" ] && mkdir -p "/home/miesu/Documents/Test_results/TESTS PERFORMED/scripts/kappa" 
+
+      if ! [[ -f $absolute_path ]]; then
+        mkdir $absolute_path
+      fi
+      
+[ ! -d "$absolute_path" ] && mkdir -p "$absolute_path" 

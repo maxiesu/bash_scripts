@@ -1,0 +1,4 @@
+#!/bin/bash
+sed '/^test number 1 of.*/i \\n\n\n\n\n\n\n\n\n\n\n\n\n\n' execution_times_for_3_5_10_20_30_50_wells.txt > execution_times_for_3_5_10_20_30_50_wells_with_spaces.txt
+
+#if you want to insert the lines AFTER a specific match use .*/a instead of .*/i

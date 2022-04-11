@@ -1,0 +1,106 @@
+#!/bin/bash
+
+
+#### LIST OF PARAMETERS TO SET ####
+electric_field="false"
+method="lcqo" # the other is EFA
+overlap="false"
+well_cases=("5" "10" "20" "50")
+#### 
+
+
+test_dir=/home/miesu/TiberCAD/trunk/src/core/modules/quantumcoupledsystem/test
+cd $test_dir
+
+
+ctr=0
+
+
+
+for ((j=0; j<8; ++j)) do #all the combination of electric_field, method and overlap
+  for ((i=0; i<${#well_cases[@]}; ++i)) do  #all the stacks of wells
+  
+    current_case=${well_cases[i]} #set the parameters utilized to set the directory
+    echo $current_case
+    if [[ "$overlap" == "true" ]]; then 
+      key_ov="with"
+    else
+      key_ov="no"
+    fi
+
+    if [[ "$electric_field" == "true" ]]; then 
+      if [[ "$method" == "EFA" ]]; then
+        path_electric_field_EFA="/${current_case}_wells_${key_ov}_overlap_EFA_with_field"
+      else 
+        path_electric_field="/${current_case}_wells_${key_ov}_overlap_with_field"
+      fi
+    else
+      path_electric_field=""
+      path_electric_field_EFA=""
+    fi
+    
+    absolute_path="${test_dir}/${current_case}_wells/${current_case}_wells_${key_ov}_overlap${path_electric_field}"
+    absolute_path_EFA="${test_dir}/${current_case}_wells/${current_case}_wells_${key_ov}_overlap/${current_case}_wells_${key_ov}_overlap_EFA${path_electric_field_EFA}"
+    
+
+    
+    if [[ "$overlap" == "true" ]]; then 
+      [ ! -d "$absolute_path" ] && mkdir -p "$absolute_path" 
+      echo "$absolute_path"
+      if [[ "$electric_field" == "true" ]]; then 
+        [ ! -d "$absolute_path" ] && mkdir -p "$absolute_path" 
+        echo "$absolute_path"
+      fi
+      if [[ "$method" == "EFA" ]]; then 
+        [ ! -d "$absolute_path_EFA" ] && mkdir -p "$absolute_path_EFA" 
+        echo "$absolute_path_EFA"
+        if [[ "$electric_field" == "true" ]]; then 
+          [ ! -d "$absolute_path_EFA" ] && mkdir -p "$absolute_path_EFA" 
+          echo "$absolute_path_EFA"
+        fi
+      fi  
+    else 
+      [ ! -d "$absolute_path" ] && mkdir -p "$absolute_path" 
+      echo "$absolute_path"
+      if [[ "$electric_field" == "true" ]]; then 
+        [ ! -d "$absolute_path" ] && mkdir -p "$absolute_path" 
+        echo "$absolute_path"
+      fi
+      if [[ "$method" == "EFA" ]]; then 
+        [ ! -d "$absolute_path_EFA" ] && mkdir -p "$absolute_path_EFA" 
+        echo "$absolute_path_EFA"
+        if [[ "$electric_field" == "true" ]]; then 
+          [ ! -d "$absolute_path_EFA" ] && mkdir -p "$absolute_path_EFA" 
+          echo "$absolute_path_EFA"
+        fi
+      fi
+    fi
+  done
+  
+  if [ "$overlap" == "false" ]; then
+    overlap="true"
+    echo printa qualcosa
+  else
+    overlap="false"
+  fi
+  ctr=$ctr+1
+  echo $ctr
+  if [ "$ctr" == "0+1+1" ]; then
+    if [ "$electric_field" == "true" ]; then
+      electric_field="false"
+    else
+      electric_field="true"
+    fi
+  ctr="0"
+  echo $ctr
+  fi
+  if [[ $j>3 ]]; then 
+    method="EFA"
+    echo "j>3"
+  fi
+  
+  echo "overlap $overlap"
+  echo "electric_field $electric_field"
+  echo "method $method"
+done
+  

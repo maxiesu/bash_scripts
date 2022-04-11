@@ -1,0 +1,71 @@
+#!/bin/bash
+
+
+test_dir=/home/miesu/TiberCAD/trunk/src/core/modules/quantumcoupledsystem/test
+
+#### CHOOSE WHICH TEST PERFORM #####
+number_of_dots=("3" "5" "10" "20" "30" "50")
+#We don't check that the folders exist, this must be done manually
+
+
+#Tests for non overlap lcqo
+for (( i=0; i<${#number_of_dots[@]}; ++i ));
+do 
+  current_test="${number_of_dots[i]}_wells/${number_of_dots[i]}_wells_no_overlap"
+  
+  tib_executable="${number_of_dots[i]}_wells_no_overlap"
+
+  current_test_dir="$test_dir/$current_test"
+  
+  cd $current_test_dir
+
+  ~/TiberCAD/trunk/bin/tibercad ${tib_executable}.tib
+done
+
+
+#Tests for non overlap EFA
+for (( i=0; i<${#number_of_dots[@]}; ++i ));
+do 
+  current_test="${number_of_dots[i]}_wells/${number_of_dots[i]}_wells_no_overlap/${number_of_dots[i]}_wells_no_overlap_EFA"
+  
+  tib_executable="${number_of_dots[i]}_wells_no_overlap_EFA"
+
+  current_test_dir="$test_dir/$current_test"
+  
+  cd $current_test_dir
+
+  ~/TiberCAD/trunk/bin/tibercad ${tib_executable}.tib
+done
+
+
+#Tests for  overlap
+for (( i=0; i<${#number_of_dots[@]}; ++i ));
+do 
+  current_test="${number_of_dots[i]}_wells/${number_of_dots[i]}_wells_with_overlap"
+  
+  tib_executable="${number_of_dots[i]}_wells_with_overlap"
+
+  current_test_dir="$test_dir/$current_test"
+  
+  cd $current_test_dir
+
+  ~/TiberCAD/trunk/bin/tibercad ${tib_executable}.tib
+done
+
+
+#Tests for overlap EFA
+for (( i=0; i<${#number_of_dots[@]}; ++i ));
+do 
+  #try
+  current_test="${number_of_dots[i]}_wells/${number_of_dots[i]}_wells_with_overlap/${number_of_dots[i]}_wells_with_overlap_EFA"
+  
+  tib_executable="${number_of_dots[i]}_wells_with_overlap_EFA"
+
+  current_test_dir="$test_dir/$current_test"
+  
+  cd $current_test_dir
+
+  ~/TiberCAD/trunk/bin/tibercad ${tib_executable}.tib
+done
+
+echo "!!! ALL TESTS ARE FINISHED !!!"
