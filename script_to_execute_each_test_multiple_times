@@ -10,7 +10,7 @@ number_of_dots=("3" "5" "10" "20" "30" "50")
 
 output_filename="execution_times_for_"
 for (( n=0; n<${#number_of_dots[@]}; ++n ));
-do 
+do
   output_filename+="${number_of_dots[n]}_"
 done
 output_filename+="wells"
@@ -20,8 +20,8 @@ echo "$output_filename"
 
 if ! [[ -f /home/miesu/Documents/Test_results/${output_filename}.txt ]]; then
   touch /home/miesu/Documents/Test_results/${output_filename}.txt
-else 
-  if [[ -s /home/miesu/Documents/Test_results/${output_filename}.txt ]]; then 
+else
+  if [[ -s /home/miesu/Documents/Test_results/${output_filename}.txt ]]; then
     echo "!!! ATTENTION: The file where to put the results is not empty, check it"
     exit 1
   fi
@@ -36,28 +36,28 @@ number_of_tests=10
 
 #Tests for non overlap lcqo
 for (( i=0; i<${#number_of_dots[@]}; ++i ));
-do 
+do
   #try
   current_test="${number_of_dots[i]}_wells/${number_of_dots[i]}_wells_no_overlap"
-  
+
   tib_executable="${number_of_dots[i]}_wells_no_overlap"
 
   current_test_dir="$test_dir/$current_test"
-  
+
   cd $current_test_dir
 
   for (( j=0; j<$number_of_tests; ++j ));
-  do 
+  do
 
     ~/TiberCAD/trunk/bin/tibercad ${tib_executable}.tib
-  
+
     output_file_to_read="${current_test_dir}/output/${number_of_dots[i]}_wells_no_overlap.log.0"
-    
+
     echo "test number $(($j+1)) of ${tib_executable}" >> $destdir
-  
+
     #Save to file destdir the last 25 lines of output_file_to_read
     tail -n 25 $output_file_to_read >> $destdir
-    
+
     echo >> $destdir
   done
 
@@ -67,28 +67,28 @@ done
 
 #Tests for non overlap EFA
 for (( i=0; i<${#number_of_dots[@]}; ++i ));
-do 
+do
   #try
   current_test="${number_of_dots[i]}_wells/${number_of_dots[i]}_wells_no_overlap/${number_of_dots[i]}_wells_no_overlap_EFA"
-  
+
   tib_executable="${number_of_dots[i]}_wells_no_overlap_EFA"
 
   current_test_dir="$test_dir/$current_test"
-  
+
   cd $current_test_dir
 
   for (( j=0; j<$number_of_tests; ++j ));
-  do 
+  do
 
     ~/TiberCAD/trunk/bin/tibercad ${tib_executable}.tib
-  
+
     output_file_to_read="${current_test_dir}/output/${number_of_dots[i]}_wells_no_overlap_EFA.log.0"
-    
+
     echo "test number $(($j+1)) of ${tib_executable}" >> $destdir
-  
+
     #Save to file destdir the last 25 lines of output_file_to_read
     tail -n 25 $output_file_to_read >> $destdir
-    
+
     echo >> $destdir
   done
 
@@ -96,65 +96,127 @@ do
 done
 
 
-#Tests for  overlap
+#Tests for  overlap lcqo
 for (( i=0; i<${#number_of_dots[@]}; ++i ));
-do 
+do
   #try
   current_test="${number_of_dots[i]}_wells/${number_of_dots[i]}_wells_with_overlap"
-  
+
   tib_executable="${number_of_dots[i]}_wells_with_overlap"
 
   current_test_dir="$test_dir/$current_test"
-  
+
   cd $current_test_dir
 
   for (( j=0; j<$number_of_tests; ++j ));
-  do 
+  do
 
     ~/TiberCAD/trunk/bin/tibercad ${tib_executable}.tib
-  
+
     output_file_to_read="${current_test_dir}/output/${number_of_dots[i]}_wells_with_overlap.log.0"
-    
+
     echo "test number $(($j+1)) of ${tib_executable}" >> $destdir
-  
+
     #Save to file destdir the last 25 lines of output_file_to_read
     tail -n 25 $output_file_to_read >> $destdir
-    
+
     echo >> $destdir
   done
 
   printf '\n%.0s' {1..15} >> $destdir
 done
 
+
+#Tests for  overlap lcqo with field
+for (( i=0; i<${#number_of_dots[@]}; ++i ));
+do
+  current_test="${number_of_dots[i]}_wells/${number_of_dots[i]}_wells_with_overlap/${number_of_dots[i]}_wells_with_overlap_with_field"
+
+  tib_executable="${number_of_dots[i]}_wells_with_overlap_with_field"
+
+  current_test_dir="$test_dir/$current_test"
+
+  cd $current_test_dir
+
+  for (( j=0; j<$number_of_tests; ++j ));
+  do
+
+    ~/TiberCAD/trunk/bin/tibercad ${tib_executable}.tib
+
+    output_file_to_read="${current_test_dir}/output/${number_of_dots[i]}_wells_with_overlap_with_field.log.0"
+
+    echo "test number $(($j+1)) of ${tib_executable}" >> $destdir
+
+    #Save to file destdir the last 25 lines of output_file_to_read
+    tail -n 25 $output_file_to_read >> $destdir
+
+    echo >> $destdir
+  done
+
+  printf '\n%.0s' {1..15} >> $destdir
+done
 
 #Tests for overlap EFA
 for (( i=0; i<${#number_of_dots[@]}; ++i ));
-do 
+do
   #try
   current_test="${number_of_dots[i]}_wells/${number_of_dots[i]}_wells_with_overlap/${number_of_dots[i]}_wells_with_overlap_EFA"
-  
+
   tib_executable="${number_of_dots[i]}_wells_with_overlap_EFA"
 
   current_test_dir="$test_dir/$current_test"
-  
+
   cd $current_test_dir
 
   for (( j=0; j<$number_of_tests; ++j ));
-  do 
+  do
 
     ~/TiberCAD/trunk/bin/tibercad ${tib_executable}.tib
-  
+
     output_file_to_read="${current_test_dir}/output/${number_of_dots[i]}_wells_with_overlap_EFA.log.0"
-    
+
     echo "test number $(($j+1)) of ${tib_executable}" >> $destdir
-  
+
     #Save to file destdir the last 25 lines of output_file_to_read
     tail -n 25 $output_file_to_read >> $destdir
-    
+
     echo >> $destdir
   done
 
   printf '\n%.0s' {1..15} >> $destdir
 done
+
+
+#Tests for overlap EFA with field
+for (( i=0; i<${#number_of_dots[@]}; ++i ));
+do
+  #try
+  current_test="${number_of_dots[i]}_wells/${number_of_dots[i]}_wells_with_overlap/${number_of_dots[i]}_wells_with_overlap_EFA/${number_of_dots[i]}_wells_with_overlap_EFA_with_field"
+
+  tib_executable="${number_of_dots[i]}_wells_with_overlap_EFA_with_field"
+
+  current_test_dir="$test_dir/$current_test"
+
+  cd $current_test_dir
+
+  for (( j=0; j<$number_of_tests; ++j ));
+  do
+
+    ~/TiberCAD/trunk/bin/tibercad ${tib_executable}.tib
+
+    output_file_to_read="${current_test_dir}/output/${number_of_dots[i]}_wells_with_overlap_EFA_with_field.log.0"
+
+    echo "test number $(($j+1)) of ${tib_executable}" >> $destdir
+
+    #Save to file destdir the last 25 lines of output_file_to_read
+    tail -n 25 $output_file_to_read >> $destdir
+
+    echo >> $destdir
+  done
+
+  printf '\n%.0s' {1..15} >> $destdir
+done
+
+
 
 echo "!!! ALL TESTS ARE FINISHED !!!"
