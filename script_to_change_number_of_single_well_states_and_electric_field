@@ -2,7 +2,7 @@
 
 
 #### LIST OF PARAMETERS TO SET if you want to not iterate over all cases ####
-iterate_over_all="false"
+iterate_over_all="true"
 electric_field="true"
 method="EFA" # the other is EFA
 overlap="false"
@@ -10,10 +10,11 @@ well_cases=("5" "10" "20" "50")  #in the case of the no iterations, the only cas
 num_electron_states="6000"
 ####
 
-first_barrier="barrier_height = 1.8"
-second_barrier="barrier_height = 0.0"
+first_barrier="barrier_height = 50"
+second_barrier="barrier_height = 312"
 
-test_dir=/home/miesu/TiberCAD/trunk/src/core/modules/quantumcoupledsystem/test
+#test_dir=/home/miesu/TiberCAD/trunk/src/core/modules/quantumcoupledsystem/test
+test_dir=/home/miesu/Documents/Test_results/TESTS_PERFORMED/scripts/test
 cd $test_dir
 
 #we set this here for the case without iterations
@@ -126,49 +127,71 @@ if [[ "$iterate_over_all" == "true" ]]; then
             echo "$absolute_path_EFA"
           fi
         fi
+      fi
+        
+      total_states=$(($current_case*$num_electron_states))
 
-        #here we are in the right directory and we change the tib files
-        sed "0,/num_electron_states =/{s/num_electron_states =/num_electron_states = ${num_electron_states}/}" $tib_name_efa.tib
-        sed "0,/num_electron_states =/{s/num_electron_states =/num_electron_states = ${num_electron_states}/}" $tib_name_lcqo.tib
+      #here we are in the right directory and we change the tib files
+      if [[ "$method" == "EFA" ]]; then
+        sed -i "0,/num_electron_states =/{s/num_electron_states =.*/num_electron_states = ${num_electron_states}/}" $tib_name_efa.tib #.* cancel till the end of the line
+        gawk -i inplace -v n=2 -v total_number="$total_states" '/num_electron_states =/ { if (++count == n) sub(/num_electron_states =.*/, "num_electron_states = "total_number); } 1' $tib_name_efa.tib
+      else
+        sed -i "0,/num_electron_states =/{s/num_electron_states =.*/num_electron_states = ${num_electron_states}/}" $tib_name_lcqo.tib #.* cancel till the end of the line
+        gawk -i inplace -v n=2 -v total_number="$total_states" '/num_electron_states =/ { if (++count == n) sub(/num_electron_states =.*/, "num_electron_states = "total_number); } 1' $tib_name_lcqo.tib
+      fi
 
-        #to add electric field we put tre barrier_height at the contacts cathode, anode, cathode single well
-        awk -v myvar='first_barrier' '/#barrier_height =/{if(++c==1)sub("#barrier_height =", "barrier_height = first_barrier");c}1' $tib_name_efa.tib
-        awk -v myvar='second_barrier' '/#barrier_height =/{if(++c==1)sub("#barrier_height =", "barrier_height = second_barrier");c}1' $tib_name_efa.tib
-        awk -v myvar='third_barrier' '/#barrier_height =/{if(++c==1)sub("#barrier_height =", "barrier_height = third_barrier");c}1' $tib_name_efa.tib
+    
+          
+      if [[ "$electric_field" == "true" ]]; then
+        #to add electric field we put three barrier_height at the contacts cathode, anode, cathode single well
+        #an awk command is executed through all the text. So the next awk command has to find again the first match. I could have used sed i think
 
-        awk -v myvar='first_barrier' '/#barrier_height =/{if(++c==1)sub("#barrier_height =", "barrier_height = first_barrier");c}1' $tib_name_lcqo.tib
-        awk -v myvar='second_barrier' '/#barrier_height =/{if(++c==1)sub("#barrier_height =", "barrier_height = second_barrier");c}1' $tib_name_lcqo.tib
-        awk -v myvar='third_barrier' '/#barrier_height =/{if(++c==1)sub("#barrier_height =", "barrier_height = third_barrier");c}1' $tib_name_lcqo.tib
+        if [[ "$method" == "lcqo" ]]; then
+          gawk -i inplace -v n=1 -v barrier_1="$first_barrier" '/#barrier_height =/ { if (++count == n) sub(/#barrier_height =.*/, barrier_1); } 1' $tib_name_lcqo.tib
+          gawk -i inplace -v n=1 -v barrier_2="$second_barrier" '/#barrier_height =/ { if (++count == n) sub(/#barrier_height =.*/, barrier_2); } 1' $tib_name_lcqo.tib
+          gawk -i inplace -v n=1 -v barrier_3="$first_barrier" '/#barrier_height =/ { if (++count == n) sub(/#barrier_height =.*/, barrier_3); } 1' $tib_name_lcqo.tib
+        else
+          gawk -i inplace -v n=1 -v barrier_1="$first_barrier" '/#barrier_height =/ { if (++count == n) sub(/#barrier_height =.*/, barrier_1); } 1' $tib_name_efa.tib
+          gawk -i inplace -v n=1 -v barrier_2="$second_barrier" '/#barrier_height =/ { if (++count == n) sub(/#barrier_height =.*/, barrier_2); } 1' $tib_name_efa.tib
+          gawk -i inplace -v n=1 -v barrier_3="$first_barrier" '/#barrier_height =/ { if (++count == n) sub(/#barrier_height =.*/, barrier_3); } 1' $tib_name_efa.tib
+        fi
+      else
+        #if no electric_field, but there are barriers, then substitute them with "#barrier_height ="
+        if [[ "$method" == "lcqo" ]]; then
+          sed -i 's/ barrier_height =.*/ #barrier_height =/g' $tib_name_lcqo.tib
+        else
+          sed -i 's/ barrier_height =.*/ #barrier_height =/g' $tib_name_efa.tib
+        fi
       fi
     done
 
-  #this is the logic of iteration to consider all the different cases
-  if [ "$overlap" == "false" ]; then
-    overlap="true"
-    echo printa qualcosa
-  else
-    overlap="false"
-  fi
-  ctr=$ctr+1
-  echo $ctr
-  if [ "$ctr" == "0+1+1" ]; then
-    if [ "$electric_field" == "true" ]; then
-      electric_field="false"
+    #this is the logic of iteration to consider all the different cases
+    if [ "$overlap" == "false" ]; then
+      overlap="true"
+      echo printa qualcosa
     else
-      electric_field="true"
+      overlap="false"
     fi
-  ctr="0"
-  echo $ctr
-  fi
-  if [[ $j>3 ]]; then
-    method="EFA"
-    echo "j>3"
-  fi
+    ctr=$ctr+1
+    echo $ctr
+    if [ "$ctr" == "0+1+1" ]; then
+      if [ "$electric_field" == "true" ]; then
+        electric_field="false"
+      else
+        electric_field="true"
+      fi
+    ctr="0"
+    echo $ctr
+    fi
+    if [[ $j>3 ]]; then
+      method="EFA"
+      echo "j>3"
+    fi
 
-  echo "overlap $overlap"
-  echo "electric_field $electric_field"
-  echo "method $method"
-done
+    echo "overlap $overlap"
+    echo "electric_field $electric_field"
+    echo "method $method"
+  done
 
 else
   if [[ "$overlap" == "true" ]]; then
@@ -203,20 +226,21 @@ else
     fi
   fi
 
-    sed -i "0,/num_electron_states =/{s/num_electron_states =.*/num_electron_states = ${num_electron_states}/}" $tib_name_efa.tib #.* cancel till the end of the line
-#     sed -i "0,/num_electron_states =/c num_electron_states = ${num_electron_states}" $tib_name_efa.tib
-#   sed -i "0,/.*num_electron_states =.*/  num_electron_states = ${num_electron_states}/" $tib_name_efa.tib
-
-#   sed -i "0,/num_electron_states =/{s/num_electron_states =/num_electron_states = ${num_electron_states}/}" $tib_name_efa.tib
-#   sed -i "0,/num_electron_states =/{s/num_electron_states =/num_electron_states = ${num_electron_states}/}" $tib_name_lcqo.tib
-
- awk -v n=1 -v barrier_1="$first_barrier" '/barrier_height =/ { if (++count == n) sub(/barrier_height =/, barrier_1); } 1' $tib_name_efa.tib
-#
-#   awk -v barrier_1="$first_barrier" '/#barrier_height =/{if(++c==1)sub("#barrier_height =", barrier_1);c}1' $tib_name_efa.tib
-#   awk -v barrier_2="$second_barrier" '/#barrier_height =/{if(++c==2)sub("#barrier_height =", "barrier_height = second_barrier");c}1' $tib_name_efa.tib
-#   awk -v barrier_3="$first_barrier" '/#barrier_height =/{if(++c==3)sub("#barrier_height =", "barrier_height = third_barrier");c}1' $tib_name_efa.tib
-#
-#   awk -v myvar='first_barrier' '/#barrier_height =/{if(++c==1)sub("#barrier_height =", "barrier_height = first_barrier");c}1' $tib_name_lcqo.tib
-#   awk -v myvar='second_barrier' '/#barrier_height =/{if(++c==1)sub("#barrier_height =", "barrier_height = second_barrier");c}1' $tib_name_lcqo.tib
-#   awk -v myvar='third_barrier' '/#barrier_height =/{if(++c==1)sub("#barrier_height =", "barrier_height = third_barrier");c}1' $tib_name_lcqo.tib
+  sed -i "0,/num_electron_states =/{s/num_electron_states =.*/num_electron_states = ${num_electron_states}/}" $tib_name_efa.tib #.* cancel till the end of the line
+  sed -i "0,/num_electron_states =/{s/num_electron_states =.*/num_electron_states = ${num_electron_states}/}" $tib_name_lcqo.tib #.* cancel till the end of the line
+    
+  if [[ "$electric_field" == "true" ]]; then  
+    #an awk command is executed through all the text. So the next awk command has to find again the first match. I could have used sed i think
+    gawk -i inplace -v n=1 -v barrier_1="$first_barrier" '/#barrier_height =/ { if (++count == n) sub(/#barrier_height =.*/, barrier_1); } 1' $tib_name_lcqo.tib
+    gawk -i inplace -v n=1 -v barrier_2="$second_barrier" '/#barrier_height =/ { if (++count == n) sub(/#barrier_height =.*/, barrier_2); } 1' $tib_name_lcqo.tib
+    gawk -i inplace -v n=1 -v barrier_3="$first_barrier" '/#barrier_height =/ { if (++count == n) sub(/#barrier_height =.*/, barrier_3); } 1' $tib_name_lcqo.tib
+    
+    gawk -i inplace -v n=1 -v barrier_1="$first_barrier" '/#barrier_height =/ { if (++count == n) sub(/#barrier_height =.*/, barrier_1); } 1' $tib_name_efa.tib
+    gawk -i inplace -v n=1 -v barrier_2="$second_barrier" '/#barrier_height =/ { if (++count == n) sub(/#barrier_height =.*/, barrier_2); } 1' $tib_name_efa.tib
+    gawk -i inplace -v n=1 -v barrier_3="$first_barrier" '/#barrier_height =/ { if (++count == n) sub(/#barrier_height =.*/, barrier_3); } 1' $tib_name_efa.tib
+  else
+    #if no electric_field, but there are barriers, then substitute them with "#barrier_height ="
+    sed -i 's/ barrier_height =.*/ #barrier_height =/g' $tib_name_lcqo.tib
+    sed -i 's/ barrier_height =.*/ #barrier_height =/g' $tib_name_efa.tib
+  fi
 fi
