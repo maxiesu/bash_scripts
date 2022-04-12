@@ -90,7 +90,11 @@ if [[ "$iterate_over_all" == "true" ]]; then
       absolute_path_EFA="${test_dir}/${current_case}_wells/${current_case}_wells_${key_ov}_overlap/${current_case}_wells_${key_ov}_overlap_EFA${path_electric_field_EFA}"
 
       tib_name_efa="${current_case}_wells_${key_ov}_overlap_EFA${path_electric_field_EFA}"
+      tib_name_efa_no_field="${current_case}_wells_${key_ov}_overlap_EFA"
+
       tib_name_lcqo="${current_case}_wells_${key_ov}_overlap${path_electric_field}"
+      tib_name_lcqo_no_field="${current_case}_wells_${key_ov}_overlap"
+
       if [[ "electric_field" == true ]]; then
         tib_name_efa="${path_electric_field_EFA:1}"
         tib_name_lcqo="${path_electric_field:1}"
@@ -128,29 +132,27 @@ if [[ "$iterate_over_all" == "true" ]]; then
           fi
         fi
       fi
-        
+
       total_states=$(($current_case*$num_electron_states))
 
-      #here we are in the right directory and we change the tib files
-      if [[ "$method" == "EFA" ]]; then
-        sed -i "0,/num_electron_states =/{s/num_electron_states =.*/num_electron_states = ${num_electron_states}/}" $tib_name_efa.tib #.* cancel till the end of the line
-        gawk -i inplace -v n=2 -v total_number="$total_states" '/num_electron_states =/ { if (++count == n) sub(/num_electron_states =.*/, "num_electron_states = "total_number); } 1' $tib_name_efa.tib
-      else
-        sed -i "0,/num_electron_states =/{s/num_electron_states =.*/num_electron_states = ${num_electron_states}/}" $tib_name_lcqo.tib #.* cancel till the end of the line
-        gawk -i inplace -v n=2 -v total_number="$total_states" '/num_electron_states =/ { if (++count == n) sub(/num_electron_states =.*/, "num_electron_states = "total_number); } 1' $tib_name_lcqo.tib
-      fi
-
-    
-          
       if [[ "$electric_field" == "true" ]]; then
         #to add electric field we put three barrier_height at the contacts cathode, anode, cathode single well
         #an awk command is executed through all the text. So the next awk command has to find again the first match. I could have used sed i think
 
         if [[ "$method" == "lcqo" ]]; then
+          if [ ! -f "$tib_name_lcqo.tib" ] && cp ../$tib_name_lcqo_no_field.tib $tib_name_lcqo.tib
+          if [ ! -f "$tib_name_lcqo.geo" ] && cp ../$tib_name_lcqo_no_field.geo $tib_name_lcqo.geo
+          if [ ! -f "$tib_name_lcqo.msh" ] && cp ../$tib_name_lcqo_no_field.msh $tib_name_lcqo.msh
+
+
           gawk -i inplace -v n=1 -v barrier_1="$first_barrier" '/#barrier_height =/ { if (++count == n) sub(/#barrier_height =.*/, barrier_1); } 1' $tib_name_lcqo.tib
           gawk -i inplace -v n=1 -v barrier_2="$second_barrier" '/#barrier_height =/ { if (++count == n) sub(/#barrier_height =.*/, barrier_2); } 1' $tib_name_lcqo.tib
           gawk -i inplace -v n=1 -v barrier_3="$first_barrier" '/#barrier_height =/ { if (++count == n) sub(/#barrier_height =.*/, barrier_3); } 1' $tib_name_lcqo.tib
         else
+          if [ ! -f "$tib_name_efa.tib" ] && cp ../$tib_name_lcqo_no_field.tib $tib_name_efa.tib
+          if [ ! -f "$tib_name_efa.geo" ] && cp ../$tib_name_lcqo_no_field.geo $tib_name_efa.geo
+          if [ ! -f "$tib_name_efa.msh" ] && cp ../$tib_name_lcqo_no_field.msh $tib_name_efa.msh
+
           gawk -i inplace -v n=1 -v barrier_1="$first_barrier" '/#barrier_height =/ { if (++count == n) sub(/#barrier_height =.*/, barrier_1); } 1' $tib_name_efa.tib
           gawk -i inplace -v n=1 -v barrier_2="$second_barrier" '/#barrier_height =/ { if (++count == n) sub(/#barrier_height =.*/, barrier_2); } 1' $tib_name_efa.tib
           gawk -i inplace -v n=1 -v barrier_3="$first_barrier" '/#barrier_height =/ { if (++count == n) sub(/#barrier_height =.*/, barrier_3); } 1' $tib_name_efa.tib
@@ -162,6 +164,15 @@ if [[ "$iterate_over_all" == "true" ]]; then
         else
           sed -i 's/ barrier_height =.*/ #barrier_height =/g' $tib_name_efa.tib
         fi
+      fi
+
+      #here we are in the right directory and we change the tib files
+      if [[ "$method" == "EFA" ]]; then
+        sed -i "0,/num_electron_states =/{s/num_electron_states =.*/num_electron_states = ${num_electron_states}/}" $tib_name_efa.tib #.* cancel till the end of the line
+        gawk -i inplace -v n=2 -v total_number="$total_states" '/num_electron_states =/ { if (++count == n) sub(/num_electron_states =.*/, "num_electron_states = "total_number); } 1' $tib_name_efa.tib
+      else
+        sed -i "0,/num_electron_states =/{s/num_electron_states =.*/num_electron_states = ${num_electron_states}/}" $tib_name_lcqo.tib #.* cancel till the end of the line
+        gawk -i inplace -v n=2 -v total_number="$total_states" '/num_electron_states =/ { if (++count == n) sub(/num_electron_states =.*/, "num_electron_states = "total_number); } 1' $tib_name_lcqo.tib
       fi
     done
 
@@ -228,13 +239,13 @@ else
 
   sed -i "0,/num_electron_states =/{s/num_electron_states =.*/num_electron_states = ${num_electron_states}/}" $tib_name_efa.tib #.* cancel till the end of the line
   sed -i "0,/num_electron_states =/{s/num_electron_states =.*/num_electron_states = ${num_electron_states}/}" $tib_name_lcqo.tib #.* cancel till the end of the line
-    
-  if [[ "$electric_field" == "true" ]]; then  
+
+  if [[ "$electric_field" == "true" ]]; then
     #an awk command is executed through all the text. So the next awk command has to find again the first match. I could have used sed i think
     gawk -i inplace -v n=1 -v barrier_1="$first_barrier" '/#barrier_height =/ { if (++count == n) sub(/#barrier_height =.*/, barrier_1); } 1' $tib_name_lcqo.tib
     gawk -i inplace -v n=1 -v barrier_2="$second_barrier" '/#barrier_height =/ { if (++count == n) sub(/#barrier_height =.*/, barrier_2); } 1' $tib_name_lcqo.tib
     gawk -i inplace -v n=1 -v barrier_3="$first_barrier" '/#barrier_height =/ { if (++count == n) sub(/#barrier_height =.*/, barrier_3); } 1' $tib_name_lcqo.tib
-    
+
     gawk -i inplace -v n=1 -v barrier_1="$first_barrier" '/#barrier_height =/ { if (++count == n) sub(/#barrier_height =.*/, barrier_1); } 1' $tib_name_efa.tib
     gawk -i inplace -v n=1 -v barrier_2="$second_barrier" '/#barrier_height =/ { if (++count == n) sub(/#barrier_height =.*/, barrier_2); } 1' $tib_name_efa.tib
     gawk -i inplace -v n=1 -v barrier_3="$first_barrier" '/#barrier_height =/ { if (++count == n) sub(/#barrier_height =.*/, barrier_3); } 1' $tib_name_efa.tib
