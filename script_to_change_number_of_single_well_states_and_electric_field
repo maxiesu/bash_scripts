@@ -6,15 +6,15 @@ iterate_over_all="true"
 electric_field="true"
 method="EFA" # the other is EFA
 overlap="false"
-well_cases=("5" "10" "20" "50")  #in the case of the no iterations, the only case is the first element of this array
-num_electron_states="6000"
+well_cases=("5" "10" "20" "30" "50")  #in the case of the no iterations, the only case is the first element of this array
+num_electron_states="20"
 ####
 
-first_barrier="barrier_height = 50"
-second_barrier="barrier_height = 312"
+first_barrier="barrier_height = 1.0"
+second_barrier="barrier_height = 0.0"
 
-#test_dir=/home/miesu/TiberCAD/trunk/src/core/modules/quantumcoupledsystem/test
-test_dir=/home/miesu/Documents/Test_results/TESTS_PERFORMED/scripts/test
+test_dir=/home/miesu/TiberCAD/trunk/src/core/modules/quantumcoupledsystem/test
+#test_dir=/home/miesu/Documents/Test_results/TESTS_PERFORMED/scripts/test
 cd $test_dir
 
 #we set this here for the case without iterations
@@ -50,7 +50,7 @@ fi
 
 
 #set initial conditions if you want to iterate, this is must be done to have a correct logic of iteration
-if [[ "$iterate_over_all" == true ]]; then
+if [[ "$iterate_over_all" == "true" ]]; then
   overlap="false"
   method="lcqo"
   electric_field="false"
@@ -95,10 +95,12 @@ if [[ "$iterate_over_all" == "true" ]]; then
       tib_name_lcqo="${current_case}_wells_${key_ov}_overlap${path_electric_field}"
       tib_name_lcqo_no_field="${current_case}_wells_${key_ov}_overlap"
 
-      if [[ "electric_field" == true ]]; then
+      if [[ "$electric_field" == "true" ]]; then
         tib_name_efa="${path_electric_field_EFA:1}"
-        tib_name_lcqo="${path_electric_field:1}"
+        tib_name_lcqo="${path_electric_field:1}"        
       fi
+      echo "TIB NAME EFA $tib_name_efa"
+      echo "TIB NAME LCQO $tib_name_lcqo"
 
 
       if [[ "$overlap" == "true" ]]; then
@@ -140,18 +142,19 @@ if [[ "$iterate_over_all" == "true" ]]; then
         #an awk command is executed through all the text. So the next awk command has to find again the first match. I could have used sed i think
 
         if [[ "$method" == "lcqo" ]]; then
-          if [ ! -f "$tib_name_lcqo.tib" ] && cp ../$tib_name_lcqo_no_field.tib $tib_name_lcqo.tib
-          if [ ! -f "$tib_name_lcqo.geo" ] && cp ../$tib_name_lcqo_no_field.geo $tib_name_lcqo.geo
-          if [ ! -f "$tib_name_lcqo.msh" ] && cp ../$tib_name_lcqo_no_field.msh $tib_name_lcqo.msh
-
+          echo "COSTRUISCI CARTELLE"
+          [ ! -f "$tib_name_lcqo.tib" ] && cp ../$tib_name_lcqo_no_field.tib $tib_name_lcqo.tib
+          [ ! -f "$tib_name_lcqo.geo" ] && cp ../$tib_name_lcqo_no_field.geo $tib_name_lcqo.geo
+          [ ! -f "$tib_name_lcqo.msh" ] && cp ../$tib_name_lcqo_no_field.msh $tib_name_lcqo.msh
+          echo "FINE COSTRUZIONE CARTELLE"
 
           gawk -i inplace -v n=1 -v barrier_1="$first_barrier" '/#barrier_height =/ { if (++count == n) sub(/#barrier_height =.*/, barrier_1); } 1' $tib_name_lcqo.tib
           gawk -i inplace -v n=1 -v barrier_2="$second_barrier" '/#barrier_height =/ { if (++count == n) sub(/#barrier_height =.*/, barrier_2); } 1' $tib_name_lcqo.tib
           gawk -i inplace -v n=1 -v barrier_3="$first_barrier" '/#barrier_height =/ { if (++count == n) sub(/#barrier_height =.*/, barrier_3); } 1' $tib_name_lcqo.tib
         else
-          if [ ! -f "$tib_name_efa.tib" ] && cp ../$tib_name_lcqo_no_field.tib $tib_name_efa.tib
-          if [ ! -f "$tib_name_efa.geo" ] && cp ../$tib_name_lcqo_no_field.geo $tib_name_efa.geo
-          if [ ! -f "$tib_name_efa.msh" ] && cp ../$tib_name_lcqo_no_field.msh $tib_name_efa.msh
+          [ ! -f "$tib_name_efa.tib" ] && cp ../$tib_name_efa_no_field.tib $tib_name_efa.tib
+          [ ! -f "$tib_name_efa.geo" ] && cp ../$tib_name_efa_no_field.geo $tib_name_efa.geo
+          [ ! -f "$tib_name_efa.msh" ] && cp ../$tib_name_efa_no_field.msh $tib_name_efa.msh
 
           gawk -i inplace -v n=1 -v barrier_1="$first_barrier" '/#barrier_height =/ { if (++count == n) sub(/#barrier_height =.*/, barrier_1); } 1' $tib_name_efa.tib
           gawk -i inplace -v n=1 -v barrier_2="$second_barrier" '/#barrier_height =/ { if (++count == n) sub(/#barrier_height =.*/, barrier_2); } 1' $tib_name_efa.tib

@@ -5,7 +5,7 @@
 electric_field="false"
 method="lcqo" # the other is EFA
 overlap="false"
-well_cases=("5" "10" "20" "50")
+well_cases=("5" "10" "20" "30" "50")
 #### 
 
 
