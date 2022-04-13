@@ -1,0 +1,131 @@
+
+Module  driftdiffusion
+{ 
+  name = dd
+
+  regions = all
+  coupling = poisson
+
+  plot = (Polarization, Ec, Ev, eQFermi, hQFermi, ElField, eDensity, hDensity,
+          CurrentDensity, ContactCurrent, eMobility, hMobility)
+
+  Physics
+  {
+
+    valence_band
+    {
+      density_of_states bulk_kp
+      {
+      }
+    }
+    
+    conduction_band
+    {
+      density_of_states quantum
+      {
+        quantum_simulation = quantum_el
+        barrier_regions = (barrier1, barrier2, barrier3)
+
+        classical_DOS bulk_kp 
+        {
+        }
+      }
+    }
+    recombination srh {}
+  
+    mobility doping_dependent {}
+  }
+
+  Contact anode
+  {
+    type = schottky
+    barrier_height = 1.0
+    voltage = 0.0
+  }
+    
+  Contact cathode
+  {
+    type = schottky
+    barrier_height = 0.2
+    voltage = 0.0
+  }
+
+  Contact cathode_single_well
+  {
+    type = schottky
+    barrier_height = 1.0
+    voltage = 0.0
+  }
+}
+
+
+
+
+
+Module efaschroedinger
+{
+
+  name = quantum_el
+  regions = QW_1_single
+
+  plot = (ProbabilityDensity, EigenEnergy, QuantumDensity)
+
+  num_electron_states_single_well 
+  poisson_simulation = dd
+  strain_simulation = strain 
+
+  Physics
+  {
+    model = conduction_band    
+  }
+}
+
+
+Module efaschroedinger
+{
+
+  name = MQW
+  regions = Quantum_MQW
+
+  plot = (ProbabilityDensity, EigenEnergy)
+
+  num_electron_states_multi_well
+  poisson_simulation = dd
+  strain_simulation = strain 
+
+
+  Physics
+  {
+    model = conduction_band    
+  }
+}
+
+Module lcqo
+{
+  name = MQW_lcqo
+  regions = Quantum_MQW
+
+  single_dot_hamiltonian = quantum_el
+  total_system_hamiltonian = MQW
+
+  number_of_dots = 
+}
+
+Module selfconsistent
+{
+  name =  poisson_schroedinger
+  solve = (quantum_el, dd)
+  max_iterations = 10
+  absolute_tolerance = 1e-3
+  relative_tolerance = 1e-8
+  monitor = true
+  #xmonitor = true
+}
+
+
+Simulation
+{
+  temperature = 300
+  solve = (dd, quantum_el, MQW_lcqo)
+  resultpath = output
+}

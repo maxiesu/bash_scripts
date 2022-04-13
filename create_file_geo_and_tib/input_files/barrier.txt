@@ -1,0 +1,12 @@
+{
+ material = AlGaAs
+
+ x = 0.3
+
+ Doping
+ {
+   density = 1e14
+   type = donor
+   level = 0.025  
+ }
+}
