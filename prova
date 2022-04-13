@@ -1,9 +1,14 @@
 #!/bin/bash
 
-[ ! -d "/home/miesu/Documents/Test_results/TESTS PERFORMED/scripts/kappa" ] && mkdir -p "/home/miesu/Documents/Test_results/TESTS PERFORMED/scripts/kappa" 
+# Various way to print all the lines till the end of the file after a specific match
 
-      if ! [[ -f $absolute_path ]]; then
-        mkdir $absolute_path
-      fi
-      
-[ ! -d "$absolute_path" ] && mkdir -p "$absolute_path" 
+
+sed -n '/>>>>---------------------------------- (lcqo) ----------------------------------/,$p' 5_well_no_overlap.log.0 
+# sed -n '/>>>>---------------------------------- (lcqo) ----------------------------------/,$p' | sed '1d' 5_well_no_overlap.log.0 > risultato.txt
+# sed -n '/Solve time/,$p' | tail -n +2 5_well_no_overlap.log.0
+# sed -e '1,/>>>>---------------------------------- (lcqo) ----------------------------------/d' 5_well_no_overlap.log.0
+# sed -n '/^>>>>---------------------------------- (lcqo) ----------------------------------$/ { :a; n; p; ba; }' 5_well_no_overlap.log.0
+>>>>---------------------------------- (MQW) -----------------------------------
+
+
+sed -n '/>>>>---------------------------------- (lcqo) ----------------------------------/,$p' 5_well_no_overlap.log.0 > risultato.txt
