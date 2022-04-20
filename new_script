@@ -1,0 +1,11 @@
+#!/bin/bash
+
+sed -e '/overlap$/,/ASSEMBLE_/{/overlap$/!{/ASSEMBLE_/!d}}'   \
+    -e '/EFA$/,/^Solve time/{/EFA$/!{/^Solve time/!d}}'   \
+    -e '/ASSEMBLE_/,/SOLVE_/{/ASSEMBLE_/!{/SOLVE_/!d}}'   \
+    -e '/SOLVE_/,/^Solve time/{/SOLVE_/!{/^Solve time/!d}}'  \
+    -e '/^</,/^test number/{/^</!{/^test number/!d}}'  \
+    -e '/^test number 1 of.*/i \\n\n\n\n\n\n\n\n\n\n\n\n\n\n' \
+    execution_times_for_5_10_20_30_50_wells.txt > prova1.txt
+
+    # -e '/^<<<<-/,/^test number/{/^<<<<-/!{/^test number/!d}}'  \
